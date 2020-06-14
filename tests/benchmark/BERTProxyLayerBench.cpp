@@ -131,9 +131,17 @@ public:
 
     // Setup host manager
     std::vector<std::unique_ptr<runtime::DeviceConfig>> configs;
+#   if LLVM_VERSION_MAJOR >= 10
+    auto config = std::make_unique<runtime::DeviceConfig>(backendStr_);
+#   else
     auto config = llvm::make_unique<runtime::DeviceConfig>(backendStr_);
+#   endif
     configs.push_back(std::move(config));
+#   if LLVM_VERSION_MAJOR >= 10
+    hostManager_ = std::make_unique<runtime::HostManager>(std::move(configs));
+#   else
     hostManager_ = llvm::make_unique<runtime::HostManager>(std::move(configs));
+#   endif
 
     std::unique_ptr<Module> mod(new Module);
     auto fn = mod->createFunction("singleNode");
