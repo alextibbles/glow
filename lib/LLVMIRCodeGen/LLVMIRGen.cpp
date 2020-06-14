@@ -30,6 +30,7 @@
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Verifier.h"
 #include "llvm/IRReader/IRReader.h"
+#include "llvm/Support/CodeGen.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/Path.h"
 #include "llvm/Support/SourceMgr.h"
@@ -324,7 +325,11 @@ void LLVMIRGen::finishCodeGen() {
 #else
     getTargetMachine().addPassesToEmitFile(
         PM, asmStream, nullptr,
+#if LLVM_VERSION_MAJOR >= 10
+        llvm::CodeGenFileType::CGFT_AssemblyFile);
+#else
         llvm::TargetMachine::CodeGenFileType::CGFT_AssemblyFile);
+#endif
 #endif
 
     PM.run(*llmodule_);

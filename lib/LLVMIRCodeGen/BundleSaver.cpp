@@ -30,6 +30,7 @@
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
 #include "llvm/Support/Casting.h"
+#include "llvm/Support/CodeGen.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/raw_ostream.h"
@@ -511,7 +512,11 @@ void BundleSaver::produceBundle() {
 #else
     TM.addPassesToEmitFile(
         PM, outputFile, nullptr,
+#if LLVM_VERSION_MAJOR >= 10
+        llvm::CodeGenFileType::CGFT_ObjectFile);
+#else
         llvm::TargetMachine::CodeGenFileType::CGFT_ObjectFile);
+#endif
 #endif
 
     PM.run(M);
